@@ -75,6 +75,7 @@ function initPhysics() {
     })
     physicsWorld.defaultContactMaterial.restitution = .3;
 }
+
 function createFloor() {
     const floor = new THREE.Mesh(
         new THREE.PlaneGeometry(100, 10),
@@ -97,7 +98,7 @@ function createFloor() {
 }
 
 function createCustomBoxGeometry(images) {
-    let boxGeometry = new THREE.BoxGeometry(1, 1, 1, 10, 10, 10); // Add segments for rounded edges
+    let boxGeometry = new THREE.BoxGeometry(1, 1, 1, params.segments, params.segments, params.segments); // Add segments for rounded edges
     const baseMaterial = new THREE.MeshStandardMaterial({
         color: 0xffffff, // Set the base color to white
         side: THREE.DoubleSide
@@ -158,12 +159,12 @@ function createCustomBoxGeometry(images) {
 function createCustomMesh() {
 
     const images = [
-        './card.png',
-        './card.png',
-        './card.png',
-        './card.png',
-        './card.png',
-        './card.png',
+        './food.png',
+        './wellness.png',
+        './sport.png',
+        './learn.png',
+        './share.png',
+        './Probeer opnieuw.png',
     ];
 
     const boxMaterialOuter = new THREE.MeshStandardMaterial({
@@ -327,8 +328,6 @@ function addDiceEvents(dice) {
         const euler = new CANNON.Vec3();
         e.target.quaternion.toEuler(euler);
 
-        console.log(dice)
-        console.log(dice.body.id)
         const eps = .1;
         let isZero = (angle) => Math.abs(angle) < eps;
         let isHalfPi = (angle) => Math.abs(angle - .5 * Math.PI) < eps;
@@ -339,58 +338,67 @@ function addDiceEvents(dice) {
             if (isZero(euler.x)) {
                 showRollResults(1, dice.body.id);
             } else if (isHalfPi(euler.x)) {
-                showRollResults(4,dice.body.id);
+                showRollResults(4, dice.body.id);
             } else if (isMinusHalfPi(euler.x)) {
-                showRollResults(3,dice.body.id);
+                showRollResults(3, dice.body.id);
             } else if (isPiOrMinusPi(euler.x)) {
-                showRollResults(6,dice.body.id);
+                showRollResults(6, dice.body.id);
             } else {
                 // landed on edge => wait to fall on side and fire the event again
                 dice.body.allowSleep = true;
             }
         } else if (isHalfPi(euler.z)) {
-            showRollResults(2,dice.body.id);
+            showRollResults(2, dice.body.id);
         } else if (isMinusHalfPi(euler.z)) {
-            showRollResults(5,dice.body.id);
+            showRollResults(5, dice.body.id);
         } else {
             // landed on edge => wait to fall on side and fire the event again
             dice.body.allowSleep = true;
         }
     });
 }
-function getImageByScore(score) {
+
+function getImageByScoreForType(score) {
     switch (score) {
         case 1:
-            return '../dice-1.png';
+            return './sport.png';
         case 2:
-            return '../dice-2.png';
+            return './food.png';
         case 3:
-            return '../dice-3.png';
+            return './share.png';
         case 4:
-            return '../dice-4.png';
+            return './Probeer opnieuw.png';
         case 5:
-            return '../dice-5.png';
+            return './wellness.png';
         case 6:
-            return '../dice-6.png';
+            return './learn.png';
+
     }
 }
+function getImageByScoreForActivity(score) {
+    switch (score) {
+        case 1:
+            return './dice-one.png';
+        case 2:
+            return './dice-two.png';
+        case 3:
+            return './dice-three.png';
+        case 4:
+            return './dice-four.png';
+        case 5:
+            return './dice-five.png';
+        case 6:
+            return './dice-six.png';
 
+    }
+}
 function showRollResults(score, diceNr) {
-    console.log(diceNr)
-
-    if(diceNr===1){
-
-        scoreResult.innerHTML += score;
-    }else if(diceNr===2){
-        diceImg.src = getImageByScore(score);
+    if (diceNr === 1) {
+        scoreResult.src = getImageByScoreForActivity(score);
+    } else if (diceNr === 2) {
+        diceImg.src = getImageByScoreForType(score);
     }
 
-
-   /* if (scoreResult.innerHTML === '') {
-        scoreResult.innerHTML += score;
-    } else {
-        scoreResult.innerHTML += ('+' + score);
-    }*/
 }
 
 
@@ -413,8 +421,8 @@ function updateSceneSize() {
 }
 
 function throwDice() {
-    scoreResult.innerHTML = '';
-
+    scoreResult.src = '';
+    diceImg.src = '';
     diceArray.forEach((d, dIdx) => {
 
         d.body.velocity.setZero();
